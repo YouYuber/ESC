@@ -61,21 +61,6 @@
       padding-top:10px;
     }        
   </style>
-  <script>
-    const btn3 = document.getElementById('btn3');
-const mask = document.getElementById('mask');
-const modal = document.getElementById('modal');
-
-btn3.addEventListener('click', () => {
-  mask.classList.remove('hidden');
-  modal.classList.remove('hidden');
-});
-
-mask.addEventListener('click', () => {
-  mask.classList.add('hidden');
-  modal.classList.add('hidden');
-});
-  </script>
 </head>
 <body>
     <header>
@@ -120,7 +105,21 @@ mask.addEventListener('click', () => {
 
     <p class="footer">© 2025 — インテル最高ｩｩ</p>
   </main>
+  <script>
+    const btn3 = document.getElementById('btn3');
+const mask = document.getElementById('mask');
+const modal = document.getElementById('modal');
 
+btn3.addEventListener('click', () => {
+  mask.classList.remove('hidden');
+  modal.classList.remove('hidden');
+});
+
+mask.addEventListener('click', () => {
+  mask.classList.add('hidden');
+  modal.classList.add('hidden');
+});
+  </script>
   <script>
     const qs = sel => document.querySelector(sel);
     const player = qs('#player');
