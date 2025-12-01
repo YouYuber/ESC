@@ -2,20 +2,44 @@
 <html lang="ja">
 
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>YouTube検索＆視聴＋履歴</title>
 	<style>
+		/*ここからはいじらないでください*/
 		header {
 			display: flex;
+		}
+
+		:root {
+			--bg-color: #0e1014;
+			--text-color: #e7eaee;
+			--panel-bg: #12161c;
+			--border-color: #2a3038;
 		}
 
 		body {
 			margin: 0;
 			padding: 24px;
-			background: #0e1014;
-			color: #e7eaee;
+			background: var(--bg-color);
+			color: var(--text-color);
 			font-family: sans-serif;
+		}
+
+		body.light-mode {
+			--bg-color: #f5f5f5;
+			--text-color: #222;
+			--panel-bg: #fff;
+			--border-color: #ccc;
+		}
+
+		.panel {
+			border-radius: 14px;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding: 14px;
+			background: var(--panel-bg);
+			border: 1px solid var(--border-color);
 		}
 
 		.app {
@@ -23,11 +47,6 @@
 			margin: 0 auto;
 			display: grid;
 			gap: 14px;
-		}
-
-		.panel {
-			border-radius: 14px;
-			padding: 14px;
 		}
 
 		.controls {
@@ -40,8 +59,8 @@
 			display: flex;
 			gap: 10px;
 			align-items: center;
-			background: #12161c;
-			border: 1px solid #2a3038;
+			background: var(--bg-color);
+			border: 1px solid var(--border-color);
 			border-radius: 12px;
 			padding: 10px 12px;
 		}
@@ -56,9 +75,9 @@
 		}
 
 		.btn {
-			border: 1px solid #2a3038;
-			color: #e7eaee;
-			background: #12161c;
+			border: 1px solid var(--border-color);
+			color: var(--text-color);
+			background: var(--bg-color);
 			padding: 6px 10px;
 			border-radius: 8px;
 			font-size: 12px;
@@ -96,7 +115,7 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-      cursor: pointer;
+			cursor: pointer;
 		}
 
 		#historyList a {
@@ -108,7 +127,7 @@
 		#historyList a:hover {
 			text-decoration: underline;
 		}
-    
+
 		.footer {
 			color: #9aa3ac;
 			font-size: 12px;
@@ -122,15 +141,17 @@
 			font-size: 14px;
 			cursor: pointer;
 			color: #7cf;
-			background-color: #12161c;
+			background-color: var(--bg-color);
 			border-style: none
 		}
 
-		.hidden, .hidden2 {
+		.hidden,
+		.hidden2 {
 			display: none
 		}
 
-		#mask, #mask2 {
+		#mask,
+		#mask2 {
 			background: rgba(0, 0, 0, .7);
 			position: fixed;
 			top: 0;
@@ -140,10 +161,12 @@
 			z-index: 1
 		}
 
-		#modal, #modal2 {
-      max-height: 100vh;
-    	overflow-y: auto;
-			background: #fff;
+		#modal,
+		#modal2 {
+			max-height: 100vh;
+			min-height: 100vh;
+			overflow-y: auto;
+			background: #0e1014;
 			width: 80%;
 			padding: 24px;
 			border-radius: 4px;
@@ -155,29 +178,71 @@
 			margin: 0 auto;
 			z-index: 2
 		}
-	/* bodyスクロール固定用 */
-	.modal-open {
-	overflow: hidden;
-	}
+
+		/* bodyスクロール固定用 */
+		.modal-open {
+			overflow: hidden;
+		}
+
 		.h1 {
-			color: black
+			color: #fff;
 		}
 
 		.h1-1 {
-			color: black;
+			color: white;
 			padding-top: 10px;
 		}
-    li{
-      font-size: 13px;
-    }
+
+		li {
+			font-size: 13px;
+			color: #fff;
+		}
+
+		p {
+			color: white;
+		}
+
+		#historyList li {
+			background: #1a1d24;
+			border-radius: 8px;
+			padding: 8px;
+			margin: 6px 0;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			/* ← 左の文字と右の削除ボタンを分ける */
+			transition: background 0.2s;
+		}
+
+		#historyList span {
+			text-align: left;
+			/* ← 文字を左寄せ */
+			flex: 1;
+			/* ← 左側に広がるようにする */
+		}
+
+		#historyList li:hover {
+			background: #2a3038;
+		}
+
+		#historyList img {
+			width: 80px;
+			border-radius: 6px;
+			margin-right: 10px;
+		}
+
+		.btn {
+			font-size: 15px;
+		}
 	</style>
 </head>
 
 <body>
 	<header>
-    
 		<h1>YouTubeプレイヤー</h1>
-		<div class="btn-container"><button id="btn3" class="button" onclick="openModal()">使い方</button></div>
+		<div class="btn-container">
+			<button id="btn3" class="button" onclick="openModal()">使い方</button>
+		</div>
 		<div id="mask" class="hidden" onclick="closeModal()"></div>
 		<section id="modal" class="hidden">
 			<h1 class="h1">使い方</h1>
@@ -192,218 +257,287 @@
 			<p>1. 本サービスを利用すると履歴を残さずYouTubeを閲覧することができます。(YouTube側の履歴機能をOFFにした場合のみ)</p>
 			<p>2. 本サービスには履歴機能がありますので、再度見ることがあります。</p>
 		</section>
-  	<div class="btn-container"><button id="btn4" class="button" onclick="openModal()">閲覧履歴</button></div>
-  	<div id="mask2" class="hidden2" onclick="closeModal()"></div>
-  	<section id="modal2" class="hidden2">
-	    <section class="panel">
-	    	<h1 class="h1">閲覧履歴</h1>
-	    	<ul id="historyList" style="list-style:none;padding:0;margin:0;"></ul>
-	    	<button class="btn" id="clearHistoryBtn">履歴クリア</button>
-	    </section>
-    </section>
+
+		<div class="btn-container">
+			<button id="btn4" class="button" onclick="openModal()">閲覧履歴</button>
+		</div>
+		<div id="mask2" class="hidden2" onclick="closeModal()"></div>
+		<section id="modal2" class="hidden2">
+			<section class="panel">
+				<h1 class="h1">閲覧履歴</h1>
+				<!-- ▼ 履歴検索欄を追加 -->
+				<input id="historySearch" type="text" placeholder="履歴検索 (タイトル/作者)"
+               style="width:100%;padding:8px;margin-bottom:10px;">
+				<ul id="historyList" style="list-style:none;padding:0;margin:0;"></ul>
+				<button class="btn" id="clearHistoryBtn">履歴クリア</button>
+			</section>
+		</section>
+		<div class="btn-container gasu">
+			<button id="toggleThemeBtn" class="button buttons">☀️</button>
+		</div>
 	</header>
 	<main class="app">
 		<section class="panel">
 			<div class="controls">
-				<label class="input">🔎<input id="query" type="text" placeholder="キーワード検索（YouTube埋め込み）" /></label>
+				<label class="input">🔎
+          <input id="query" type="text" placeholder="キーワード検索（YouTube埋め込み）">
+        </label>
 				<button class="btn primary" id="searchBtn">検索して再生</button>
 				<button class="btn" id="clearBtn">クリア</button>
 			</div>
 			<div class="row" style="margin-top:10px">
-				<label class="input">🔗<input id="urlInput" type="text" placeholder="YouTubeのURLまたは動画IDを貼り付け" /></label>
+				<label class="input">🔗
+          <input id="urlInput" type="text" placeholder="YouTubeのURLまたは動画IDを貼り付け">
+        </label>
 				<button class="btn" id="loadUrlBtn">URLを読み込み</button>
 			</div>
 			<div class="player" style="margin-top:12px">
 				<iframe id="player"
 					src="https://www.youtube.com/embed?listType=search&list=%E3%83%88%E3%83%AC%E3%83%B3%E3%83%89"
-					allowfullscreen></iframe>
+					allowfullscreen>
+				</iframe>
 			</div>
 		</section>
-
 		<p class="footer">© 2025 — インテル最高ｩｩ</p>
 	</main>
 	<script>
 		const btn3 = document.getElementById('btn3');
-    const mask = document.getElementById('mask');
-    const modal = document.getElementById('modal');
-
-    btn3.addEventListener('click', () => {
-      mask.classList.remove('hidden');
-      modal.classList.remove('hidden');
-    });
-
-    mask.addEventListener('click', () => {
-      mask.classList.add('hidden');
-      modal.classList.add('hidden');
-    	document.body.classList.remove('modal-open'); // スクロール固定用のクラスを削除
-    });
-  </script>
-  <script>
-  	const btn4 = document.getElementById('btn4');
-    const mask2 = document.getElementById('mask2');
-    const modal2 = document.getElementById('modal2');
-
-    btn4.addEventListener('click', () => {
-      mask2.classList.remove('hidden2');
-      modal2.classList.remove('hidden2');
-    });
-
-    mask2.addEventListener('click', () => {
-      mask2.classList.add('hidden2');
-      modal2.classList.add('hidden2');
-  		document.body.classList.remove('modal-open'); // スクロール固定用のクラスを削除
-    });
-  </script>
-  <script>
+		const mask = document.getElementById('mask');
+		const modal = document.getElementById('modal');
+		
+		btn3.addEventListener('click', () => {
+		mask.classList.remove('hidden');
+		modal.classList.remove('hidden');
+		});
+		
+		mask.addEventListener('click', () => {
+		mask.classList.add('hidden');
+		modal.classList.add('hidden');
+		document.body.classList.remove('modal-open');
+		});
+	</script>
+	<script>
+		const btn4 = document.getElementById('btn4');
+	const mask2 = document.getElementById('mask2');
+	const modal2 = document.getElementById('modal2');
+	
+	btn4.addEventListener('click', () => {
+	mask2.classList.remove('hidden2');
+	modal2.classList.remove('hidden2');
+	});
+	mask2.addEventListener('click', () => {
+	mask2.classList.add('hidden2');
+	modal2.classList.add('hidden2');
+	document.body.classList.remove('modal-open');
+	});
+	</script>
+	<script>
 		function openModal() {
-		document.body.classList.add('modal-open'); // bodyにスクロール固定用のクラスを追加
-		document.querySelector('.modal').style.display = 'block'; // モーダルを開く
-		}
-    </script> 
+document.body.classList.add('modal-open');
+document.querySelector('.modal').style.display = 'block';
+}
+	</script>
 	<script>
 		const qs = sel => document.querySelector(sel);
-const player = qs('#player');
-const queryInput = qs('#query');
-const urlInput = qs('#urlInput');
+    const player = qs('#player');
+    const queryInput = qs('#query');
+    const urlInput = qs('#urlInput');
+    let history = JSON.parse(localStorage.getItem('ytHistory') || '[]');
 
-let history = JSON.parse(localStorage.getItem('ytHistory') || '[]');
+	  function ellipsizeText(element, maxWidth) {
+	  const text = element.textContent;
+	  const style = window.getComputedStyle(element);
+	  const canvas = document.createElement("canvas");
+	  const ctx = canvas.getContext("2d");
+	  ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+	  if (ctx.measureText(text).width <= maxWidth) return; let truncated=text; while (ctx.measureText(truncated + "…" ).width>
+		maxWidth && truncated.length > 0) {
+		  truncated = truncated.slice(0, -1);
+		}
+		  element.textContent = truncated + "…";
+		}
 
-function ellipsizeText(element, maxWidth) {
-const text = element.textContent;
-const style = window.getComputedStyle(element);
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
-ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    // ▼ 検索欄のイベント追加
+    const historySearch = qs('#historySearch');
+    historySearch.addEventListener('input', () => {
+      updateHistoryUI(historySearch.value.trim().toLowerCase());
+    });
 
-if (ctx.measureText(text).width <= maxWidth) return; let truncated=text; while (ctx.measureText(truncated + "…" ).width>
-	maxWidth && truncated.length > 0) {
-	truncated = truncated.slice(0, -1);
+    // 履歴UI更新（日付ごと＋サムネイル表示＋検索対応）
+    function updateHistoryUI(filter = "") {
+      const list = qs('#historyList');
+      list.innerHTML = '';
+
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
+
+      const grouped = { "今日": [], "昨日": [], "過去1週間": [], "それ以前": [] };
+
+      history.forEach((item, idx) => {
+        const text = (item.title + " " + item.author).toLowerCase();
+        if (filter && !text.includes(filter)) return; // ←検索フィルタ
+
+        if (item.date === today) grouped["今日"].push({ ...item, idx });
+        else if (item.date === yesterday) grouped["昨日"].push({ ...item, idx });
+        else if (item.date >= weekAgo) grouped["過去1週間"].push({ ...item, idx });
+        else grouped["それ以前"].push({ ...item, idx });
+      });
+
+      Object.keys(grouped).forEach(section => {
+        if (grouped[section].length === 0) return;
+        const header = document.createElement('h3');
+        header.textContent = section;
+        header.style.color = "#7cf";
+        list.appendChild(header);
+
+        const container = document.createElement('div');
+        container.style.marginLeft = "10px";
+        list.appendChild(container);
+
+        const liElements = [];
+        grouped[section].forEach((item, i) => {
+          // 既存の li 作成処理をそのまま利用
+          const li = document.createElement('li');
+          li.style.alignItems = "center";
+          li.style.justifyContent = "space-between";
+
+          const img = document.createElement('img');
+          const videoId = item.url.split('v=')[1];
+          img.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+          img.style.width = "80px";
+          img.style.marginRight = "10px";
+          li.appendChild(img);
+
+          const span = document.createElement('span');
+          span.textContent = `${item.title} — @${item.author}`;
+          span.style.flex = "1";
+          span.style.textAlign = "left";
+          li.appendChild(span);
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = "削除";
+          delBtn.className = "btn";
+          delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            history = history.filter(h => h.url !== item.url);
+            localStorage.setItem('ytHistory', JSON.stringify(history));
+            updateHistoryUI(filter);
+          });
+          li.appendChild(delBtn);
+
+          li.addEventListener('click', () => {
+            navigator.clipboard.writeText(item.url).then(() => {
+              alert("リンクをコピーしました: " + item.url);
+            });
+          });
+
+          container.appendChild(li);
+          liElements.push(li);
+        });
+      });
+    }
+	// 履歴追加（日付も保存）
+	async function addToHistory(id) {
+	const info = await fetchOEmbedInfo(id);
+	const now = new Date();
+	info.date = now.toISOString().split('T')[0]; // YYYY-MM-DD形式
+	history.unshift(info);
+	if (history.length > 9999) history = history.slice(0,9999);
+	localStorage.setItem('ytHistory', JSON.stringify(history));
+	updateHistoryUI();
 	}
-	element.textContent = truncated + "…";
+	// oEmbedで動画情報取得
+	async function fetchOEmbedInfo(videoId) {
+	const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+	try {
+	const res = await fetch(url);
+	if (!res.ok) throw new Error("oEmbed取得失敗");
+	const data = await res.json();
+	return {
+	title: data.title,
+	author: data.author_name,
+	url: `https://www.youtube.com/watch?v=${videoId}`
+	};
+	} catch {
+	return { title: videoId, author: "", url: `https://www.youtube.com/watch?v=${videoId}` };
 	}
-
-function updateHistoryUI() {
-const list = qs('#historyList');
-list.innerHTML = '';
-history.forEach((item, idx) => {
-const li = document.createElement('li');
-const span = document.createElement('span');
-span.textContent = `${idx+1}. ${item.title} — @${item.author}`;
-li.appendChild(span);
-
-// クリックでコピー
-li.addEventListener('click', async () => {
-try {
-await navigator.clipboard.writeText(item.url);
-alert(`コピーしました:\n${item.url}`);
-} catch (err) {
-alert("コピーに失敗しました");
-}
-});
-// 削除ボタン
-const delBtn = document.createElement('button');
-delBtn.textContent = "削除";
-delBtn.className = "btn";
-delBtn.addEventListener('click', (e) => {
-e.stopPropagation();
-history.splice(idx,1);
-localStorage.setItem('ytHistory', JSON.stringify(history));
-updateHistoryUI();
-});
-li.appendChild(delBtn);
-
-list.appendChild(li);
-
-// ←ここで省略処理を実行
-ellipsizeText(span, 1010); // 300px幅に収める例
-});
-}
-
-// oEmbedで動画情報取得
-async function fetchOEmbedInfo(videoId) {
-  const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("oEmbed取得失敗");
-    const data = await res.json();
-    return {
-      title: data.title,
-      author: data.author_name,
-      url: `https://www.youtube.com/watch?v=${videoId}`
-    };
-  } catch {
-    return { title: videoId, author: "", url: `https://www.youtube.com/watch?v=${videoId}` };
-  }
-}
-
-// 履歴追加
-async function addToHistory(id) {
-  const info = await fetchOEmbedInfo(id);
-  history.unshift(info);
-  if (history.length > 20) history = history.slice(0,20);
-  localStorage.setItem('ytHistory', JSON.stringify(history));
-  updateHistoryUI();
-}
-
-// 検索再生
-function setPlayerToSearch(q) {
-  const safe = encodeURIComponent(q.trim());
-  if (!safe) return;
-  player.src = `https://www.youtube.com/embed?listType=search&list=${safe}`;
-}
-
-// URL/IDから動画ID抽出
-function extractVideoId(input) {
-  const s = input.trim();
-  if (!s) return null;
-  if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
-  try {
-    const u = new URL(s);
-    if (u.hostname.includes('youtu.be')) {
-      const id = u.pathname.split('/').filter(Boolean)[0];
-      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
-    }
-    if (u.searchParams.has('v')) {
-      const id = u.searchParams.get('v');
-      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
-    }
-    if (u.pathname.includes('/embed/')) {
-      const id = u.pathname.split('/').pop();
-      if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
-    }
-    return null;
-  } catch { return null; }
-}
-
-// 動画再生
-async function setPlayerToVideo(id) {
-  player.src = `https://www.youtube.com/embed/${id}`;
-  await addToHistory(id);
-}
-
-// イベント設定
-qs('#searchBtn').addEventListener('click', () => setPlayerToSearch(queryInput.value));
-qs('#clearBtn').addEventListener('click', () => {
-  queryInput.value = '';
-  urlInput.value = '';
-  player.src = 'https://www.youtube.com/embed?listType=search&list=%E3%83%88%E3%83%AC%E3%83%B3%E3%83%89';
-});
-qs('#loadUrlBtn').addEventListener('click', () => {
-  const id = extractVideoId(urlInput.value);
-  if (!id) { alert('有効なYouTubeのURLまたは動画IDを入力してください。'); return; }
-  setPlayerToVideo(id);
-});
-queryInput.addEventListener('keydown', e => { if (e.key === 'Enter') setPlayerToSearch(queryInput.value); });
-urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') qs('#loadUrlBtn').click(); });
-qs('#clearHistoryBtn').addEventListener('click', () => {
-  history = [];
-  localStorage.removeItem('ytHistory');
-  updateHistoryUI();
-});
-
-// 初期化
-updateHistoryUI();
-
+	}
+	// 履歴追加
+	async function addToHistory(id) {
+	const info = await fetchOEmbedInfo(id);
+	const now = new Date();
+	info.date = now.toISOString().split('T')[0]; // YYYY-MM-DD形式
+	history.unshift(info);
+	if (history.length > 9999) history = history.slice(0,9999);
+	localStorage.setItem('ytHistory', JSON.stringify(history));
+	updateHistoryUI();
+	}
+	// 検索再生
+	function setPlayerToSearch(q) {
+	const safe = encodeURIComponent(q.trim());
+	if (!safe) return;
+	player.src = `https://www.youtube.com/embed?listType=search&list=${safe}`;
+	}
+	// URL/IDから動画ID抽出
+	function extractVideoId(input) {
+	const s = input.trim();
+	if (!s) return null;
+	if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
+	try {
+	const u = new URL(s);
+	if (u.hostname.includes('youtu.be')) {
+	const id = u.pathname.split('/').filter(Boolean)[0];
+	if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
+	}
+	if (u.searchParams.has('v')) {
+	const id = u.searchParams.get('v');
+	if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
+	}
+	if (u.pathname.includes('/embed/')) {
+	const id = u.pathname.split('/').pop();
+	if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return id;
+	}
+	return null;
+	} catch { return null; }
+	}
+	// 動画再生
+	async function setPlayerToVideo(id) {
+	player.src = `https://www.youtube.com/embed/${id}?modestbranding=1`;
+	await addToHistory(id);
+	}
+	// イベント設定
+	qs('#searchBtn').addEventListener('click', () => setPlayerToSearch(queryInput.value));
+	qs('#clearBtn').addEventListener('click', () => {
+	queryInput.value = '';
+	urlInput.value = '';
+	player.src = 'https://www.youtube.com/embed?listType=search&list=%E3%83%88%E3%83%AC%E3%83%B3%E3%83%89';
+	});
+	qs('#loadUrlBtn').addEventListener('click', () => {
+	const id = extractVideoId(urlInput.value);
+	if (!id) { alert('有効なYouTubeのURLまたは動画IDを入力してください。'); return; }
+	setPlayerToVideo(id);
+	});
+	queryInput.addEventListener('keydown', e => { if (e.key === 'Enter') setPlayerToSearch(queryInput.value); });
+	urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') qs('#loadUrlBtn').click(); });
+	qs('#clearHistoryBtn').addEventListener('click', () => {
+	history = [];
+	localStorage.removeItem('ytHistory');
+	updateHistoryUI();
+	});
+	// 初期化
+	updateHistoryUI();
+	</script>
+	<script>
+		const toggleBtn = document.getElementById('toggleThemeBtn');
+	const body = document.body;
+	
+	toggleBtn.addEventListener('click', () => {
+	body.classList.toggle('light-mode');
+	const isLight = body.classList.contains('light-mode');
+	toggleBtn.textContent = isLight ? '🌙' : '☀️';
+	localStorage.setItem('theme', isLight ? 'light' : 'dark');
+	});
 	</script>
 </body>
 
